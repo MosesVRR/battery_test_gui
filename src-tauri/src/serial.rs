@@ -21,14 +21,19 @@
 
 const DELIMITER : u8 = 0xB3;
 
+
 enum Command {
-	Ping = 0x00,
-	AssignID = 0x01,
-	RequestData = 0x02,
-	SetStandby = 0x04,
-	SetDischarge = 0x05,
-	SetCharge = 0x06,
-	AnnounceCompletion = 0x07	
+	Ping(PingPayload),
+	AssignID(AssignIDPayload),
+	RequestData(RequestDataPayload),
+	SetStandby,
+	SetDischarge,
+	SetCharge,
+	AnnounceCompletion(AnnounceCompletionPayload)
+}
+
+struct PingPayload {
+	identification : u8
 }
 
 struct AssignIDPayload {
@@ -43,19 +48,86 @@ struct RequestDataPayload {
 	current : u16,
 }
 
-struct PingPayload {
-	identification : u8
-}
 
 struct AnnounceCompletionPayload {
 	flag : u8
 }
 
+impl Command {
 
-pub fn decode(bytes: &[u8]) -> Result<Vec<u8>, &'static str> {
-	todo!()
+	fn frame_id(&self) -> u8 {
+		match self {
+			Command::Ping(_payload) => 0x00,
+			Command::AssignID(_payload) => 0x01,
+			Command::RequestData(_payload) => 0x02,
+			Command::SetStandby => 0x04,
+			Command::SetDischarge => 0x05,
+			Command::SetCharge => 0x06,
+			Command::AnnounceCompletion(_payload) => 0x07
+		}
+	}
+
+	fn encode(&self) -> Vec<u8> {
+
+		let mut result = vec![DELIMITER, self.frame_id()] ;
+
+		result.extend(match self {
+
+			Command::Ping(payload) => {
+				vec![payload.identification]
+			},
+
+			Command::AssignID(payload) => {
+				vec![payload.new_id]
+			},
+
+			Command::RequestData(payload) => {
+				vec![
+					(payload.battery_temperature >> 8) as u8,		//it is this way to convert the u16 to two u8
+					(payload.battery_temperature & 0xFF) as u8,
+
+					(payload.bench_temperature >> 8) as u8,		
+					(payload.bench_temperature & 0xFF) as u8,
+
+					(payload.load_temperature >> 8) as u8,		
+					(payload.load_temperature & 0xFF) as u8,
+					
+					(payload.voltage >> 8) as u8,		
+					(payload.voltage & 0xFF) as u8,
+
+					(payload.current >> 8) as u8,		
+					(payload.current & 0xFF) as u8,
+				]
+			},
+
+			Command::SetCharge => {
+				vec![]
+			},
+			
+			Command::SetDischarge => {
+				vec![]
+			},
+			Command::SetStandby => {
+				vec![]
+			},
+			Command::AnnounceCompletion(payload) => {
+				vec![payload.flag]
+			}
+		});
+
+		let mut checksum = result[0];
+		let mut index = 1;
+
+		while index < result.len() {
+			checksum ^= result[index];
+			index+=1;
+		}
+
+		result.push(checksum);
+		result
+
+	}
 }
-
 /// Encodes a slice of bytes by prepending 0xB3 and appending a checksum.
 ///
 /// The checksum is calculated as the XOR of every byte in the resulting slice, including the prepended 0xB3.
@@ -72,12 +144,9 @@ pub fn decode(bytes: &[u8]) -> Result<Vec<u8>, &'static str> {
 ///
 /// ```
 /// let data = vec![0x01, 0x02, 0x03];
-/// let encoded = encode(&data);
+/// let encoded = [0xB3, 0x00, 0x05, 0xB3 ^ 0x00 ^ 0x05];
 /// assert_eq!(encoded, vec![0xB3, 0x01, 0x02, 0x03, 0xB3 ^ 0x01 ^ 0x02 ^ 0x03]);
-/// ```
-pub fn encode(bytes: &[u8]) -> Vec<u8> {
-	todo!()
-}
+/// ``
 
 #[cfg(test)]
 mod tests {
@@ -85,6 +154,14 @@ mod tests {
 
 	#[test]
 	fn test_encode() {
+
+
+		let encoded = vec![0xB3, 0x00, 0x05, 0xB3 ^ 0x00 ^ 0x05];
+
+		let command = Command::Ping(PingPayload{ identification : 0x05 });
+
+		assert_eq!(encoded , command.encode());
+		/* 
 		let data = vec![0x01, 0x02, 0x03];
 		let encoded = encode(&data);
 		assert_eq!(encoded, vec![0xB3, 0x01, 0x02, 0x03, 0xB3 ^ 0x01 ^ 0x02 ^ 0x03]);
@@ -92,6 +169,7 @@ mod tests {
 		let data = vec![0x00, 0xFF, 0x55];
 		let encoded = encode(&data);
 		assert_eq!(encoded, vec![0xB3, 0x00, 0xFF, 0x55, 0xB3 ^ 0x00 ^ 0xFF ^ 0x55]);
+		*/
 	}
 
 	#[test]
