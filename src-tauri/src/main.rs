@@ -3,9 +3,10 @@
 
 mod file;
 mod pilot;
-mod serial;
+// mod serial; // commented out because of error in serial.rs
 mod database;
 mod commands;
+mod usart_listener;
 
 use std::fs::File; // addedd for debugging - to be removed/commented when building
 use std::io::Write; // same as above
@@ -18,8 +19,9 @@ use commands::*;
 
 use self::file::*;
 use self::pilot::*;
-use self::serial::*;
+// use self::serial::*; // commented out because of error in serial.rs
 use self::database::initialize_database;
+use self::usart_listener::usart_listen;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -43,6 +45,11 @@ fn main() {
     tauri::Builder::default()
         .setup(|app| {
             let app_handle = app.handle();
+            thread::spawn(move || {// change COM port number as necessary
+                if let Err(e) = usart_listen("COM3") {
+                    eprintln!("Failed to listen to UART: {:?}", e);
+                }
+            });
             thread::spawn(move || {
                 loop {
                     let battery_bench = BatteryBench {
