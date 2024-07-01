@@ -52,8 +52,8 @@ const data = [
 // invokes the export_csv_command tauri command and creates the csv file in the project's main directory (supposed to)
 async function exportToCSV() {
   try {
-    // const projectDir = await invoke('get_project_dir', { steps: 3 });
-    let projectDir = "C://Users//zephr//Desktop//SC";
+    const projectDir = await invoke('get_project_dir', { steps: 2 });
+    //let projectDir = "C://Users//zephr//Desktop//SC";
     console.log('Project Directory:', projectDir); // Debug
     const csvPath = projectDir;
     await invoke('export_csv_command', { csvPath });
