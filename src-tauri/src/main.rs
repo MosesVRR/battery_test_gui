@@ -82,6 +82,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             commands::export_csv_command,
              get_project_dir,
+             select_directory             
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

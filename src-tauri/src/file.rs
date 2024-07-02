@@ -7,6 +7,8 @@ use std::io::Write;
 use std::path::PathBuf;
 use csv::Writer;
 
+
+
 /// Generates a CSV file for each battery ID from the SQLite database "battery_logs.db".
 ///
 /// # Arguments

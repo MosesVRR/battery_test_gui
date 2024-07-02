@@ -1,4 +1,13 @@
 use tauri::command;
+use rfd::FileDialog;
+
+#[command]
+pub fn select_directory() -> Option<String> {
+    FileDialog::new()
+    .add_filter(".csv", &["text", "csv"]) // not working as intended but not an issue for now
+    .pick_folder()
+    .map(|path| path.to_string_lossy().to_string())
+}
 
 /// tauri command that calls the backend (rust) export_to_csv function
 #[command]
