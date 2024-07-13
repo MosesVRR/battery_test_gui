@@ -2,7 +2,7 @@ use std::io::Read;
 use std::time::Duration;
 use serialport::SerialPort;
 
-pub fn uart_listen(port_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn uart_read(port_name: &str) -> Result<(), Box<dyn std::error::Error>> {
     let baud_rate = 115200;
     let timeout = Duration::from_millis(1000);
 
