@@ -30,29 +30,76 @@ export interface BatteryBench {
 export function useBatteryManager() {
 	const batteries = ref<BatteryBench[]>([]);
 	
-	const batteries_voltages = computed(() => {
-		return []
-	})
+	const batteries_voltages = computed(
+		() => {
+			let data: Map<String, number[]> = new Map<String, number[]>()
+			batteries.value.map(battery => {
+				
+				!data.has(battery.port) && data.set(battery.port, []);
+				data.get(battery.port)?.push(battery.voltage)
+
+			});
+			
+			return data;
+		})
 	
-	const batteries_temperatures = computed(() => {
-		return []
-	})
+	const batteries_temperatures = computed(
+		() => {
+			let data: Map<String, number[]> = new Map<String, number[]>()
+			batteries.value.map(battery => {
+				
+				!data.has(battery.port) && data.set(battery.port, []);
+				data.get(battery.port)?.push(battery.battery_temperature)
+
+			});
+			
+			return data;
+		})
 	
-	const batteries_currents = computed(() => {
-		return []
-	})
+	const batteries_currents = computed(
+		() => {
+			let data: Map<String, number[]> = new Map<String, number[]>()
+			batteries.value.map(battery => {
+				
+				!data.has(battery.port) && data.set(battery.port, []);
+				data.get(battery.port)?.push(battery.current)
+
+			});
+			
+			return data;
+		})
 	
-	const battery_benches_temperatures = computed(() => {
-		return []
-	})
+	const battery_benches_temperatures = computed(
+		() => {
+			let data: Map<String, number[]> = new Map<String, number[]>()
+			batteries.value.map(battery => {
+				
+				!data.has(battery.port) && data.set(battery.port, []);
+				data.get(battery.port)?.push(battery.temperature)
+
+			});
+			
+			return data;
+		})
 	
-	const bench_loads_temperatures = computed(() => {
-		return []
-	})
+	const bench_loads_temperatures = computed(
+		() => {
+			let data: Map<String, number[]> = new Map<String, number[]>()
+			batteries.value.map(battery => {
+				
+				!data.has(battery.port) && data.set(battery.port, []);
+				data.get(battery.port)?.push(battery.electronic_load_temperature)
+
+			});
+			
+			return data;
+		})
 	
 	onMounted(async () => {
 		await listen('display-battery', event => {
-			console.log('Received battery data:', event.payload);
+
+
+			console.log(event.payload.port);
 		});
 	});
 

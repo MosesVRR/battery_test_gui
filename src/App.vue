@@ -12,7 +12,7 @@ import { LineChart } from '@/components/ui/chart-line'
 import { Badge } from '@/components/ui/badge'
 import { useBatteryManager } from '@/lib/battery.ts'
 import { invoke } from '@tauri-apps/api/tauri' // added to use the export_to_csv() from backend and invoke tauri commands
-import { appDataDir } from '@tauri-apps/api/path'// added to obtain directory path
+
 
 const batteryManager = useBatteryManager();
 
@@ -49,6 +49,7 @@ const data = [
   },
 ];
 
+
 // invokes the export_csv_command tauri command and creates the csv file in the project's main directory (supposed to)
 async function exportToCSV() {
   try {
@@ -74,6 +75,8 @@ async function exportToCSV() {
 
 <template>
   <section class="m-10 flex flex-col gap-10">
+
+    <!--Top Section-->
     <section>
       <h1 class="text-2xl font-bold">Batteries Connected</h1>
       <Table>
@@ -139,6 +142,9 @@ async function exportToCSV() {
         </TableBody>
       </Table>
     </section>
+
+
+
     <section class="grid grid-cols-2 gap-5">
       <h2 class="text-2xl font-bold">Voltage [V]</h2>
       <h2 class="text-2xl font-bold">Current [mA]</h2>
@@ -156,6 +162,8 @@ async function exportToCSV() {
         :categories="['0x00', '0x01']"
       />
     </section>
+
+
     <section class="grid grid-cols-3 gap-5">
       <h2 class="text-2xl font-bold">Battery Temperature [C]</h2>
       <h2 class="text-2xl font-bold">Bench Temperature [C]</h2>
