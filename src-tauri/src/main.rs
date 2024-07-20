@@ -3,7 +3,7 @@
 
 mod file;
 mod pilot;
-// mod serial; // commented out because of error in serial.rs
+ mod serial;
 mod database;
 mod commands;
 mod uart;
@@ -19,7 +19,7 @@ use commands::*;
 
 use self::file::*;
 use self::pilot::*;
-// use self::serial::*; // commented out because of error in serial.rs
+use self::serial::*;
 use self::database::initialize_database;
 use self::uart::uart_read;
 
