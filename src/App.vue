@@ -16,38 +16,13 @@ import { invoke } from '@tauri-apps/api/tauri' // added to use the export_to_csv
 
 const batteryManager = useBatteryManager();
 
-const data = [
-  {
-    'year': 1970,
-    '0x00': 2.04,
-    '0x01': 1.53,
-  },
-  {
-    'year': 1971,
-    '0x00': 1.96,
-    '0x01': 1.58,
-  },
-  {
-    'year': 1972,
-    '0x00': 1.96,
-    '0x01': 1.61,
-  },
-  {
-    'year': 1973,
-    '0x00': 1.93,
-    '0x01': 1.61,
-  },
-  {
-    'year': 1974,
-    '0x00': 1.88,
-    '0x01': 1.67,
-  },
-  {
-    'year': 1975,
-    '0x00': 1.79,
-    '0x01': 1.64,
-  },
-];
+const batteries = batteryManager.latest_data;
+const open_ports = batteryManager.open_ports;
+const voltages = batteryManager.batteries_voltages;
+const currents = batteryManager.batteries_currents;
+const battery_temp = batteryManager.batteries_temperatures;
+const bench_temp = batteryManager.battery_benches_temperatures;
+const elec_temp = batteryManager.bench_loads_temperatures;
 
 
 // invokes the export_csv_command tauri command and creates the csv file in the project's main directory (supposed to)
@@ -74,15 +49,15 @@ async function exportToCSV() {
 </script>
 
 <template>
-  <section class="m-10 flex flex-col gap-10">
 
+  <section class="m-10 flex flex-col gap-10">
     <!--Top Section-->
     <section>
       <h1 class="text-2xl font-bold">Batteries Connected</h1>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Battery IDs</TableHead>
+            <TableHead>Battery Port</TableHead>
             <TableHead>Voltage</TableHead>
             <TableHead>Current</TableHead>
             <TableHead>Temperature</TableHead>
@@ -94,15 +69,18 @@ async function exportToCSV() {
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
+
+        <!--Table Battery-->
         <TableBody>
-          <TableRow>
-            <TableCell>0x00</TableCell>
-            <TableCell>5V</TableCell>
-            <TableCell>0.2mA</TableCell>
-            <TableCell>20.02C</TableCell>
-            <TableCell>20.02C</TableCell>
-            <TableCell>20.02C</TableCell>
-            <TableCell>10:30:03</TableCell>
+
+          <TableRow v-for="battery in batteries">
+            <TableCell>{{ battery.port }}</TableCell>
+            <TableCell>{{battery.voltage / 100}}V</TableCell>
+            <TableCell>{{battery.current / 100}}mA</TableCell>
+            <TableCell>{{battery.battery_temperature / 100}}C</TableCell>
+            <TableCell>{{battery.temperature / 100}}C</TableCell>
+            <TableCell>{{battery.electronic_load_temperature / 100}}C</TableCell>
+            <TableCell>{{ +battery.end_date- +battery.start_date }} </TableCell>
             <TableCell>
               <Badge variant="secondary">
                 Standby
@@ -117,29 +95,10 @@ async function exportToCSV() {
               <Button>Begin Test</Button>
             </TableCell>
           </TableRow>
-          <TableRow>
-            <TableCell>0x01</TableCell>
-            <TableCell>5V</TableCell>
-            <TableCell>0.2mA</TableCell>
-            <TableCell>20.02C</TableCell>
-            <TableCell>20.02C</TableCell>
-            <TableCell>20.02C</TableCell>
-            <TableCell>10:30:03</TableCell>
-            <TableCell>
-              <Badge variant="secondary">
-                Standby
-              </Badge>
-            </TableCell>
-            <TableCell>
-              <Badge variant="secondary">
-                Standby
-              </Badge>
-            </TableCell>
-            <TableCell class="text-right">
-              <Button>Begin Test</Button>
-            </TableCell>
-          </TableRow>
+
         </TableBody>
+
+
       </Table>
     </section>
 
@@ -149,17 +108,20 @@ async function exportToCSV() {
       <h2 class="text-2xl font-bold">Voltage [V]</h2>
       <h2 class="text-2xl font-bold">Current [mA]</h2>
 
+      <!--Voltage chart-->
       <LineChart
         class="max-h-64"
-        :data="data"
-        index="year"
-        :categories="['0x00', '0x01']"
+        :data="voltages"
+        index="index"
+        :categories='open_ports'
       />
+
+      <!--current chart-->
       <LineChart
         class="max-h-64"
-        :data="data"
-        index="year"
-        :categories="['0x00', '0x01']"
+        :data="currents"
+        index="index"
+        :categories="open_ports"
       />
     </section>
 
@@ -171,21 +133,21 @@ async function exportToCSV() {
 
       <LineChart
         class="max-h-64"
-        :data="data"
-        index="year"
-        :categories="['0x00', '0x01']"
+        :data="battery_temp"
+        index="index"
+        :categories="open_ports"
       />
       <LineChart
         class="max-h-64"
-        :data="data"
-        index="year"
-        :categories="['0x00', '0x01']"
+        :data="bench_temp"
+        index="index"
+        :categories="open_ports"
       />
       <LineChart
         class="max-h-64"
-        :data="data"
-        index="year"
-        :categories="['0x00', '0x01']"
+        :data="elec_temp"
+        index="index"
+        :categories="open_ports"
       />
     </section>
     <section>

@@ -37,6 +37,7 @@ fn main() {
     // Initialize the database
     let conn = initialize_database().expect("Failed to initialize database");
     
+    
     tauri::Builder::default()
         .setup(|app| {
             let app_handle = app.handle();
@@ -49,7 +50,7 @@ fn main() {
                 loop {
                     let battery_bench = BatteryBench {
                         id: 0,
-                        port: "COM 4".to_string(),
+                        port: "COM4".to_string(),
                         temperature: 2020,
                         battery_temperature: 2013,
                         electronic_load_temperature: 2054,
@@ -81,4 +82,5 @@ fn main() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+    
 }
